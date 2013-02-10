@@ -26,8 +26,8 @@ We'll use the example of storing recent visitors to a web site.
     require 'json'
 
     class Visitor < OpenStruct
-      def to_json
-        {:ip_address => ip_address, :visited_url => visited_url}.to_json
+      def to_json(*a)
+        {:ip_address => ip_address, :visited_url => visited_url}.to_json(*a)
       end
     end
 
@@ -67,8 +67,8 @@ If your object does not initialize from a hash of attributes you can pass in the
         @content = content
       end
 
-      def to_json
-        {:title => title, :content => content}
+      def to_json(*a)
+        {:title => title, :content => content}.to_json(*a)
       end
 
       def self.new_from_json(json)
@@ -94,7 +94,6 @@ Then we could configure moderation to use the `new_from_json` constructor method
 
 ## TODO
 
-- [] use yajl
 - [] add redis storage backend
 - [] document creating new storage backends
 

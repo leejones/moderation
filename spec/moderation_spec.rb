@@ -52,13 +52,13 @@ describe Moderation do
   private
 
   class Visitor < OpenStruct
-    def to_json
+    def to_json(*a)
       { :ip_address => ip_address }.to_json
     end
   end
 
   class Note < OpenStruct
-    def to_json
+    def to_json(*a)
       {
         :title => title,
         :content => content 
@@ -74,8 +74,8 @@ describe Moderation do
       @author = author
     end
 
-    def to_json
-      { :title => title, :author => author }.to_json
+    def to_json(*a)
+      { :title => title, :author => author }.to_json(a)
     end
 
     def self.new_from_json(json)

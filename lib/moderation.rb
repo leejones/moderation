@@ -1,4 +1,5 @@
 require 'moderation/version'
+require 'multi_json'
 
 class Moderation
   attr_reader :constructor, :construct_with, :limit, :storage
@@ -13,7 +14,7 @@ class Moderation
   end
 
   def insert(item)
-    storage.insert(item.to_json)
+    storage.insert(MultiJson.dump(item))
   end
 
   def all(options = {})
@@ -22,10 +23,10 @@ class Moderation
       if using_custom_constructor?
         constructor.send(construct_with, stored_item)
       elsif using_constructor?
-        data = JSON.parse(stored_item, :symbolize_names => true) 
+        data = MultiJson.load(stored_item, :symbolize_keys => true)
         constructor.new(data)
       else
-        JSON.parse(stored_item, :symbolize_names => true) 
+        MultiJson.load(stored_item, :symbolize_keys => true)
       end
     end
   end
