@@ -18,42 +18,132 @@ Or install it yourself as:
 
 ## Usage
 
-Moderation keeps a limited amount of data (25 objects by default) and has a few different configuration options for data storage and retrieval.
+Moderation stores the most recent data based on a limit you set (25 objects by default). Moderation can store the data in Redis or in-memory.
 
-We'll use the example of storing recent visitors to a web site.
+### Possible use cases
+
+* admin dashboards and event streams
+* user activity (signups, purchases, favorites)
+* user search history
+* processing failures
+* visitor ip addresses
+* sent emails
+* incoming emails
+* referring pages/domains
+
+### Initialization Options
+
+Moderation initializes with a Hash of options:
+
+    Moderation.new(options = {})
+
+**options**
+
+* `:limit` - integer that determines how many objects Moderation will keep before deleting old objects (default: 25)
+* `:storage` - an instance of a storage object (default: in-memory)
+* `:constructor` - optional, class used to initialize new objects when fetching data from storage
+* `:construct_with` - optional, symbol for the method to call on the `:constructor`
+
+Example:
+
+    website_visitors = Moderation.new(
+      :limit => 50,
+      :storage => redis,
+      :constructor => Visitor,
+      :construct_with => :new_from_json
+    )
+
+### Interface
+
+**insert(item)**
+
+* `item` - object, stored as JSON
+  * Hash
+  * Array
+  * Other objects
+* returns `nil`
+
+Example:
+
+    new_visitor = Visitor.new('223.123.243.11', 'http://example.com/')
+    website_visitors.insert(new_visitor)
+
+**all(options = {})**
+
+* `options` - optional, a Hash of parameters
+  * `:limit` - specifies the max number of objects that are fetched from storage (default: 25)
+* returns an Array of objects
+
+Examples (after a couple more people visited the website):
+
+    website_visitors.all
+    => [#<Visitor ip_address="223.123.243.11", visited_url="http://example.com">, #<Visitor ip_address="123.443.243.11", visited_url="http://example.com/about">, #<Visitor ip_address="292.122.155.11", visited_url="http://example.com/contact">]
+
+    website_visitors.all(:limit => 1)
+    => [#<Visitor ip_address="223.123.243.11", visited_url="http://example.com">]
+
+#### Storing Hash or Array objects
+
+Example:
+
+    temperatures = Moderation.new
+
+    # add some data
+    (1..28).to_a.each do |n|
+      high = rand(100)
+      temperature = {
+        :date => "2013-02-#{n}",
+        :high => "#{high}F",
+        :low => "#{high - rand(20)}F"
+      }
+      temperatures.insert(temperature)
+    end
+
+    # keeps only the 25 most recent temperatures:
+    temperatures.all.count
+    => 25
+
+    # the most recently added temperature is first:
+    temperatures.all.first
+    => {:date=>"2013-02-28", :high=>"89F", :low=>"72F"}
+
+#### Storing other types of objects
+
+Other types of objects need to meet 2 requirements:
+
+  * respond to `to_json(*a)` with a string that can be later used to reconstruct the object
+  * initialize with a hash of attributes (see “Custom constructors” if you need a different way to initialize your objects)
+
+For this example we’ll create a simple object to represent a user's recent search history:
 
     require 'ostruct'
     require 'json'
 
-    class Visitor < OpenStruct
+    class UserSearch < OpenStruct
       def to_json(*a)
-        {:ip_address => ip_address, :visited_url => visited_url}.to_json(*a)
+        {:term => term, :user => user, :result_count => result_count}.to_json(*a)
       end
     end
 
-### Default in-memory storage
+Now we can setup moderation and store new searches using the `:constructor` option:
 
-    recent_visitors = Moderation.new(limit: 3)
-    5.times do |n|
-      new_visitor = Visitor.new(:ip_address => "222.333.44#{n}", :visited_url => 'http://example.com')
-      recent_visitors.insert(new_visitor)
-    end
-    recent_visitors.all.map(&:ip_address)
-    => ["222.333.445", "222.333.444", "222.333.443"]
+    user_search_history = Moderation.new(
+      :limit => 50,
+      :constructor => UserSearch
+    )
 
-We configured Moderation with `:limit => 3` so only the 3 most recent visitors are kept in storage.
+Our search controller might look something like:
 
-### Redis storage
+    search = UserSearch.new(
+      :user => current_user.id,
+      :term => params[:q],
+      :result_count => results.count
+    )
+    user_search_history.insert(search)
 
-You can also store your objects with moderation. Each object will be stored as JSON, so you'll need to ensure that your object responds to `to_json` with a string of valid JSON that can be parsed when your object is retrieved from storage. Your object will also need to be able to be constructed from a hash of attributes (see "Custom constructors" otherwise).
+We configured `user_search_history` with `:limit => 50` so only the 50 most recent searches are kept in storage.
 
-    visitors = Moderation.new(limit: 3, storage: redis, constructor: Visitor)
-    new_visitor = Visitor.new(:ip_address => '222.333.444.555', :url_visited => 'http://example.com/')
-    visitors.insert(new_visitor)
-    visitors.all.first
-     => #<Visitor:0x00000101a15ef8 @ip_address="222.333.444.555", @url_visited="http://example.com/"> 
-
-### Custom constructors
+#### Custom constructors
 
 If your object does not initialize from a hash of attributes you can pass in the `:contruct_with` option and parse the JSON yourself. For example, if we had a Note class:
 
@@ -79,10 +169,37 @@ If your object does not initialize from a hash of attributes you can pass in the
 
 Then we could configure moderation to use the `new_from_json` constructor method:
 
-    notes = Moderation.new(:limit => 3, :constructor => Note, :construct_with => :new_from_json)
-    notes.insert(Note.new('A note title', 'Some note content')
-    notes.all.first
-    => #<Note:0x0000010095fb40 @title="A note title", @content="Some note content"> 
+    notes = Moderation.new(
+      :limit => 3,
+      :constructor => Note,
+      :construct_with => :new_from_json
+    )
+
+### Storage
+
+#### Redis storage
+
+Moderation can use a Redis storage backend. You'll want to pass in a `:collection` which is a string that gets used as the storage key in Redis. We're using a Redis list to store the data.
+
+    require 'redis'
+    redis = Redis.new
+    redis_storage = Moderation::Storage::Redis.new(
+      :collection => 'recent_visitors',
+      :server => redis
+    )
+
+Then setup moderation with the `:storage` option:
+
+    recent_visitors = Moderation.new(
+      :limit => 50,
+      :constructor => Visitor,
+      :construct_with => :new_from_json,
+      :storage => redis_storage
+    )
+
+#### In-memory storage
+
+Moderation stores data in-memory by default.
 
 ## Contributing
 
@@ -94,6 +211,4 @@ Then we could configure moderation to use the `new_from_json` constructor method
 
 ## TODO
 
-- [] add redis storage backend
 - [] document creating new storage backends
-

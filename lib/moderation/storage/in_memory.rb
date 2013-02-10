@@ -1,7 +1,7 @@
 class Moderation
   class Storage
     class InMemory 
-      attr_reader :limit
+      attr_accessor :limit
 
       def initialize(limit = Moderation::DEFAULT_LIMIT)
         @limit = limit

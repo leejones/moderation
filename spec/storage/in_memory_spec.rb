@@ -11,6 +11,12 @@ describe Moderation::Storage::InMemory do
     storage.limit.should eql(200)
   end
 
+  it 'accepts a new limit' do
+    storage = Moderation::Storage::InMemory.new(200)
+    storage.limit = 100
+    storage.limit.should eql(100)
+  end
+
   it 'inserts data' do
     storage = Moderation::Storage::InMemory.new
     storage.insert('treadstone')

@@ -41,13 +41,20 @@ describe Moderation do
     notes.all(limit: 2).count.should eql(2)
   end
 
-   it 'uses a custom contructor' do
+  it 'uses a custom contructor' do
     books = Moderation.new(:constructor => Book, :construct_with => :new_from_json) 
     new_book = Book.new('Title Goes Here', 'Author Name')
     books.insert(new_book)
     retrieved_book = books.all.first
     [retrieved_book.title, retrieved_book.author].should eql(['Title Goes Here', 'Author Name'])
-   end
+  end
+
+  it 'stores a limited amount of data in redis' do
+    redis_storage = Moderation::Storage::Redis.new(:collection => 'rows')
+    rows = Moderation.new(:limit => 33, :storage => redis_storage)
+    50.times { |n| rows.insert [n] }
+    rows.all.count.should eql(33)
+  end
 
   private
 

@@ -10,7 +10,8 @@ class Moderation
     @constructor = options[:constructor]
     @construct_with = options[:construct_with]
     @limit = options.fetch(:limit, DEFAULT_LIMIT)
-    @storage = options.fetch(:storage, Storage::InMemory.new(@limit))
+    @storage = options.fetch(:storage, Storage::InMemory.new)
+    @storage.limit = @limit
   end
 
   def insert(item)
