@@ -3,7 +3,7 @@ class Moderation
     class InMemory 
       attr_reader :limit
 
-      def initialize(limit)
+      def initialize(limit = Moderation::DEFAULT_LIMIT)
         @limit = limit
       end
 

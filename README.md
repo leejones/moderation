@@ -94,7 +94,6 @@ Then we could configure moderation to use the `new_from_json` constructor method
 
 ## TODO
 
-- [] add specs for memory store
 - [] use yajl
 - [] add redis storage backend
 - [] document creating new storage backends

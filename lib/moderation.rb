@@ -3,11 +3,12 @@ require 'moderation/version'
 class Moderation
   attr_reader :constructor, :construct_with, :limit, :storage
   autoload 'Storage', 'moderation/storage.rb'
+  DEFAULT_LIMIT = 25
 
   def initialize(options = {})
     @constructor = options[:constructor]
     @construct_with = options[:construct_with]
-    @limit = options.fetch(:limit, 25)
+    @limit = options.fetch(:limit, DEFAULT_LIMIT)
     @storage = options.fetch(:storage, Storage::InMemory.new(@limit))
   end
 
