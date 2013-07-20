@@ -13,16 +13,15 @@ class Moderation
       end
 
       def insert(item)
-        if redis.respond_to?(:multi)
-          redis.multi { insert_item_and_trim_collection(item) }
-        else
-          insert_item_and_trim_collection(item)
+        transaction do
+          redis.lpush(collection, item)
+          redis.ltrim(collection, 0, (limit - 1))
         end
       end
 
       def all(options = {})
         fetch_limit = options.fetch(:limit, limit).to_i - 1
-        redis.lrange(collection, 0, fetch_limit)
+        redis.lrange(collection, 0, fetch_limit) || []
       end
 
       private
@@ -51,9 +50,22 @@ class Moderation
         end
       end
 
-      def insert_item_and_trim_collection(item)
-        redis.lpush(collection, item)
-        redis.ltrim(collection, 0, (limit - 1))
+      def transaction(&block)
+        if transactions_supported?
+          redis.multi { yield }
+        else
+          yield
+        end
+      end
+
+      def transactions_supported?
+        @transactions_supported ||= begin
+          redis_version.split('.').first.to_i >= 2 && redis.respond_to?(:multi)
+        end
+      end
+
+      def redis_version
+        @redis_version ||= redis.info["redis_version"]
       end
     end
   end
