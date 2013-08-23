@@ -11,6 +11,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{Moderation stores only the most recent data based on a limit you set.}
   gem.summary       = %q{Certain types of data are good to keep around, but only in moderation. Moderation makes it easy to keep only the most recent amount of data you care about. Persistent storage is backed by Redis.}
   gem.homepage      = "http://github.com/leejones/moderation"
+  gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
