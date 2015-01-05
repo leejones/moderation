@@ -35,7 +35,7 @@ Moderation stores the most recent data based on a limit you set (25 objects by d
 
 Moderation initializes with a Hash of options:
 
-    Moderation.new(options = {})
+    Moderation::Store.new(options = {})
 
 **options**
 
@@ -43,6 +43,7 @@ Moderation initializes with a Hash of options:
 * `:storage` - an instance of a storage object (default: in-memory)
 * `:constructor` - optional, class used to initialize new objects when fetching data from storage
 * `:construct_with` - optional, symbol for the method to call on the `:constructor`
+* `:coercer` - an instance of a coercer object (default: MultiJson)
 
 Example:
 
@@ -53,7 +54,7 @@ Example:
       :construct_with => :new_from_json
     )
 
-### Interface
+### Interface Moderation::AbstractStorage
 
 **insert(item)**
 
@@ -82,11 +83,16 @@ Examples (after a couple more people visited the website):
     website_visitors.all(:limit => 1)
     => [#<Visitor ip_address="223.123.243.11", visited_url="http://example.com">]
 
+### Interface Moderation::AbstractCoercer
+
+**dump(options)**
+**load(options)**
+
 #### Storing Hash or Array objects
 
 Example:
 
-    temperatures = Moderation.new
+    temperatures = Moderation::Store.new
 
     # add some data
     (1..28).to_a.each do |n|

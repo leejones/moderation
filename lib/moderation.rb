@@ -1,45 +1,56 @@
 require 'moderation/version'
-require 'multi_json'
 
-class Moderation
-  attr_reader :constructor, :construct_with, :limit, :storage
-  autoload 'Storage', 'moderation/storage.rb'
-  DEFAULT_LIMIT = 25
+require_relative 'moderation/storage'
+# require_relative 'moderation/coercer'
 
-  def initialize(options = {})
-    @constructor = options[:constructor]
-    @construct_with = options[:construct_with]
-    @limit = options.fetch(:limit, DEFAULT_LIMIT)
-    @storage = options.fetch(:storage, Storage::InMemory.new)
-    @storage.limit = @limit
-  end
+module Moderation
+  class Store
+    attr_reader :constructor, :construct_with, :limit, :storage, :coercer
 
-  def insert(item)
-    storage.insert(MultiJson.dump(item))
-  end
+    DEFAULT_LIMIT = 25
 
-  def all(options = {})
-    fetch_limit = options.fetch(:limit, limit)
-    storage.all(limit: fetch_limit).map do |stored_item|
-      if using_custom_constructor?
-        constructor.send(construct_with, stored_item)
-      elsif using_constructor?
-        data = MultiJson.load(stored_item, :symbolize_keys => true)
-        constructor.new(data)
-      else
-        MultiJson.load(stored_item, :symbolize_keys => true)
+    def initialize(options = {})
+      @constructor    = options.fetch(:constructor, :no_constructor)
+      @construct_with = options.fetch(:construct_with, :no_construct_with)
+      @limit          = options.fetch(:limit, DEFAULT_LIMIT)
+      @storage        = options.fetch(:storage) { Storage::InMemory.new }
+      @coercer        = options.fetch(:coercer) do
+        require_relative 'moderation/coercer/multi_json_coercer'
+        Coercer::MultiJsonCoercer.new
+      end
+      @storage.limit  = @limit
+    end
+
+    def insert(item)
+      storage.insert(self.coercer.dump(item))
+    end
+
+    def all(options = {})
+      fetch_limit = options.fetch(:limit, limit)
+      storage.all(limit: fetch_limit).map do |stored_item|
+        if using_custom_constructor?
+          constructor.send(construct_with, stored_item)
+        elsif using_constructor?
+          data = deserialize(stored_item)
+          constructor.new(data)
+        else
+          deserialize(stored_item)
+        end
       end
     end
-  end
 
-  private
+    private
 
-  def using_constructor?
-    ! constructor.nil?
-  end
+    def deserialize serialized_data
+      self.coercer.load(serialized_data, symbolize_keys: true)
+    end
 
-  def using_custom_constructor?
-    using_constructor? && ! construct_with.nil? 
+    def using_constructor?
+      constructor != :no_constructor
+    end
+
+    def using_custom_constructor?
+      using_constructor? && construct_with != :no_construct_with
+    end
   end
 end
-

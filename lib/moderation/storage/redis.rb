@@ -1,15 +1,16 @@
 require 'redis/namespace'
+require_relative '../abstract_storage'
 
-class Moderation
-  class Storage
-    class Redis
+module Moderation
+  module Storage
+    class Redis < Moderation::AbstractStorage
       attr_reader :collection, :server
       attr_accessor :limit
 
-      def initialize(options = {}) 
-        @limit = options.fetch(:limit, Moderation::DEFAULT_LIMIT)
+      def initialize(options = {})
+        @limit      = options.fetch(:limit, Moderation::Store::DEFAULT_LIMIT)
         @collection = options.fetch(:collection)
-        @server = options.fetch(:server, nil)
+        @server     = options.fetch(:server, nil)
       end
 
       def insert(item)
@@ -37,7 +38,7 @@ class Moderation
               url, namespace = server.split('/', 2)
               host, port, db = server.split(':')
               redis_connection = ::Redis.new(:host => host, :port => port,
-                :thread_safe => true, :db => db)
+              :thread_safe => true, :db => db)
             end
             namespace ||= :moderation
 
@@ -70,4 +71,3 @@ class Moderation
     end
   end
 end
-

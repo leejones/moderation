@@ -1,9 +1,11 @@
-class Moderation
-  class Storage
-    class InMemory 
+require_relative '../abstract_storage'
+
+module Moderation
+  module Storage
+    class InMemory < Moderation::AbstractStorage
       attr_accessor :limit
 
-      def initialize(limit = Moderation::DEFAULT_LIMIT)
+      def initialize(limit = Moderation::Store::DEFAULT_LIMIT)
         @limit = limit
       end
 
@@ -28,4 +30,3 @@ class Moderation
     end
   end
 end
-
