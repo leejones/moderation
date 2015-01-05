@@ -9,5 +9,13 @@ module Moderation
       raise NotImplementedError
     end
 
+    def moderation_required?
+      raise NotImplementedError
+    end
+
+    def clean!
+      raise NotImplementedError
+    end
+
   end
 end

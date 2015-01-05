@@ -11,12 +11,12 @@ module Moderation
       end
 
       it 'accepts a custom limit of 200' do
-        storage = InMemory.new(200)
+        storage = InMemory.new(limit: 200)
         storage.limit.should eql(200)
       end
 
       it 'accepts a new limit' do
-        storage = InMemory.new(200)
+        storage = InMemory.new(limit: 200)
         storage.limit = 100
         storage.limit.should eql(100)
       end

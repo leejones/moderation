@@ -9,7 +9,7 @@ module Moderation
 
       def initialize(options = {})
         @limit      = options.fetch(:limit, Moderation::Store::DEFAULT_LIMIT)
-        @collection = options.fetch(:collection)
+        @collection = options.fetch(:collection, 'default')
         @server     = options.fetch(:server, nil)
       end
 
@@ -25,6 +25,10 @@ module Moderation
         redis.lrange(collection, 0, fetch_limit) || []
       end
 
+      def clean!
+        redis.del(collection)
+      end
+
       private
 
       def redis
@@ -33,20 +37,19 @@ module Moderation
           case server
           when String
             if server['redis://']
-              redis_connection = ::Redis.connect(:url => server, :thread_safe => true)
+              redis_connection = ::Redis.connect(url: server, thread_safe: true)
             else
               url, namespace = server.split('/', 2)
               host, port, db = server.split(':')
-              redis_connection = ::Redis.new(:host => host, :port => port,
-              :thread_safe => true, :db => db)
+              redis_connection = ::Redis.new(host: host, port: port, thread_safe: true, db: db)
             end
             namespace ||= :moderation
 
-            ::Redis::Namespace.new(namespace, :redis => redis_connection)
+            ::Redis::Namespace.new(namespace, redis: redis_connection)
           when ::Redis::Namespace
             server
           else
-            ::Redis::Namespace.new(:moderation, :redis => server)
+            ::Redis::Namespace.new(:moderation, redis: server)
           end
         end
       end

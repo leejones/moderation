@@ -5,6 +5,58 @@ require 'ostruct'
 
 module Moderation
   describe Store do
+
+    context 'redis store' do
+      let(:redis)           { MockRedis.new }
+      let(:storage)         { Storage::Redis.new(collection: 'collection_test', server: redis) }
+      let(:options)         { store_options.merge(storage: storage) }
+      let(:store)           { Store.new(options) }
+      let(:store_options)   {{  }}
+      let(:recent_visitors) { store }
+
+      specify '#moderation_required?' do
+        expect(recent_visitors.moderation_required?).to be_falsey
+        recent_visitors.insert({ip_address: "222.333.44.01"})
+        expect(recent_visitors.moderation_required?).to be_truthy
+      end
+
+      context '#clean!' do
+        before do
+          recent_visitors.insert({ip_address: "222.333.44.01"})
+          expect(recent_visitors.moderation_required?).to be_truthy
+          store.clean!
+        end
+        specify do
+          expect(recent_visitors.moderation_required?).to be_falsey
+        end
+      end
+    end
+
+    context 'memory store' do
+      let(:storage)         { Storage::InMemory.new }
+      let(:options)         { store_options.merge(storage: storage) }
+      let(:store)           { Store.new(options) }
+      let(:store_options)   {{  }}
+      let(:recent_visitors) { store }
+
+      specify '#moderation_required?' do
+        expect(recent_visitors.moderation_required?).to be_falsey
+        recent_visitors.insert({ip_address: "222.333.44.01"})
+        expect(recent_visitors.moderation_required?).to be_truthy
+      end
+
+      context '#clean!' do
+        before do
+          recent_visitors.insert({ip_address: "222.333.44.01"})
+          expect(recent_visitors.moderation_required?).to be_truthy
+          store.clean!
+        end
+        specify do
+          expect(recent_visitors.moderation_required?).to be_falsey
+        end
+      end
+    end
+
     it 'keeps a limited amount of data' do
       recent_visitors = Store.new(limit: 3, constructor: Visitor)
       5.times do |n|

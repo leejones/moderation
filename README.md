@@ -83,6 +83,15 @@ Examples (after a couple more people visited the website):
     website_visitors.all(:limit => 1)
     => [#<Visitor ip_address="223.123.243.11", visited_url="http://example.com">]
 
+**moderation_required?**
+
+  if you have some moderation on your observed model, you can ask simply the store about that
+
+**clean!**
+
+  After your moderation you can cleanup your pending moderation
+
+
 ### Interface Moderation::AbstractCoercer
 
 **dump(options)**

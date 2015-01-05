@@ -45,14 +45,6 @@ module Moderation
           redis.lrange('moderation:test_data', 0, -1).count.should eql(5)
         end
 
-        it 'uses a transaction with redis 2.x or greater', skip: true do
-          redis.stub(:info).and_return({"redis_version" => "2.6.4"})
-          redis.stub(:lpush)
-          redis.stub(:ltrim)
-          redis.should_receive(:multi).and_yield
-          storage.insert('more data')
-        end
-
         it 'does not use a transaction with redis 1.x' do
           redis.stub(:info).and_return({"redis_version" => "1.2.0"})
           redis.stub(:lpush)

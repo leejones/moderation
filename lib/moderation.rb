@@ -5,6 +5,7 @@ require_relative 'moderation/storage'
 
 module Moderation
   class Store
+    extend Forwardable
     attr_reader :constructor, :construct_with, :limit, :storage, :coercer
 
     DEFAULT_LIMIT = 25
@@ -38,6 +39,12 @@ module Moderation
         end
       end
     end
+
+    def moderation_required?
+      storage.all(limit: 1).size > 0
+    end
+
+    def_delegator :storage, :clean!
 
     private
 
