@@ -5,4 +5,6 @@ gemspec
 
 group :test do
   gem 'mock_redis'
+  gem 'pry'
+  gem 'ammeter'
 end

@@ -12,17 +12,17 @@ module Moderation
 
       describe '#limit' do
         it 'initializes with a default limit of 25' do
-          storage = Redis.new(:collection => 'test_data', :server => redis)
+          storage = Redis.new(collection: 'test_data', server: redis)
           storage.limit.should eql(25)
         end
 
         it 'accepts a custom limit' do
-          storage = Redis.new(:limit => 200, :collection => 'test_data', :server => redis)
+          storage = Redis.new(limit: 200, collection: 'test_data', server: redis)
           storage.limit.should eql(200)
         end
 
         it 'accespts a new limit after initialization' do
-          storage = Redis.new(:limit => 200, :collection => 'test_data', :server => redis)
+          storage = Redis.new(limit: 200, collection: 'test_data', server: redis)
           storage.limit = 135
           storage.limit.should eql(135)
         end
@@ -30,9 +30,9 @@ module Moderation
 
       describe '#insert' do
         let(:storage) { Redis.new(
-          :collection => 'test_data',
-          :server => redis,
-          :limit => 5)
+          collection: 'test_data',
+          server: redis,
+          limit: 5)
         }
 
         it 'stores data' do
@@ -56,26 +56,26 @@ module Moderation
 
       describe '#all' do
         it 'returns all data' do
-          numbers = Redis.new(:collection => 'test_data', :server => redis)
+          numbers = Redis.new(collection: 'test_data', server: redis)
           Array(0..10).each { |n|  numbers.insert(n) }
           numbers.all.should eql(["10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
         end
 
         it 'returns a subset of data' do
-          numbers = Redis.new(:collection => 'test_data', :server => redis)
+          numbers = Redis.new(collection: 'test_data', server: redis)
           Array(0..10).each { |n|  numbers.insert(n) }
-          numbers.all(:limit => 5).should eql(["10", "9", "8", "7", "6"])
+          numbers.all(limit: 5).should eql(["10", "9", "8", "7", "6"])
         end
 
         it 'returns an empty Array with redis greater than 2.x' do
           redis.should_receive(:lrange).with('moderation:test_data', 0, 24).and_return([])
-          numbers = Redis.new(:collection => 'test_data', :server => redis)
+          numbers = Redis.new(collection: 'test_data', server: redis)
           numbers.all.should eql([])
         end
 
         it 'returns an empty Array with redis 1.x' do
           redis.should_receive(:lrange).with('moderation:test_data', 0, 24).and_return(nil)
-          numbers = Redis.new(:collection => 'test_data', :server => redis)
+          numbers = Redis.new(collection: 'test_data', server: redis)
           numbers.all.should eql([])
         end
       end

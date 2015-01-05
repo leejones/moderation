@@ -6,7 +6,7 @@ module Moderation
       attr_accessor :limit
 
       def initialize(options = {})
-        @limit = options.fetch(:limit, Moderation::Store::DEFAULT_LIMIT)
+        @limit = options.fetch(:limit, Store.configuration.limit)
       end
 
       def insert(item)

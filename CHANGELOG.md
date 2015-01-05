@@ -1,33 +1,37 @@
 ### VERSION 1.0.0
 
-* feature
-  * add moderation_required? and clean! method to Store
+* Feature
+  * Add moderation_required? and clean! method to Store
+  * Add general configuration
+  * Add generator Rails for install configuration file
 
-* bug fix
+* Bug fix
   * replace bad key `test_data` by `moderation:test_data`
 
-* refactoring
+* Refactoring
   * Add interface AbstractStorage and AbstractCoercer
   * Remove true Redis on spec for RedisMock
   * Replace autoload by require_relative
-  * Harmonize constructor for InMemory and Redis Storage
+  * Harmonize Storage constructor of InMemory and Redis
 
-* enhancements
-  * Add policy of coercion, you can pass you own coercer
+* Enhancements
+  * Add policy of coercion, you can pass your own coercer
 
-* backwards incompatible changes
+* Backwards incompatible changes
   * Moderation class became a module, you need to call Moderation::Store.new instead of Moderation.new
   * Signature of Moderation::Storage::InMemory has changed, it take Hash now
     * Moderation::Storage::InMemory.new(limit: 10)
 
-* deprecations
+* Test
+  * Add configuration for testing all storage backend.
 
-* todos
+* Deprecations
 
-* extra
+* Todos
 
-* issues
+* Extra
 
+* Issues
 
 [Owner Joel AZEMAR](https://github.com/joel)
 

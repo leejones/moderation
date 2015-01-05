@@ -1,4 +1,5 @@
-require 'moderation/version'
+require_relative 'moderation/version'
+require_relative 'moderation/configuration'
 
 require_relative 'moderation/storage'
 # require_relative 'moderation/coercer'
@@ -8,12 +9,26 @@ module Moderation
     extend Forwardable
     attr_reader :constructor, :construct_with, :limit, :storage, :coercer
 
-    DEFAULT_LIMIT = 25
+    class << self
+      attr_writer :configuration
+    end
+
+    def self.configuration
+      @configuration ||= Configuration.new
+    end
+
+    def self.reset
+      @configuration = Configuration.new
+    end
+
+    def self.configure
+      yield(configuration)
+    end
 
     def initialize(options = {})
       @constructor    = options.fetch(:constructor, :no_constructor)
       @construct_with = options.fetch(:construct_with, :no_construct_with)
-      @limit          = options.fetch(:limit, DEFAULT_LIMIT)
+      @limit          = options.fetch(:limit, Store.configuration.limit)
       @storage        = options.fetch(:storage) { Storage::InMemory.new }
       @coercer        = options.fetch(:coercer) do
         require_relative 'moderation/coercer/multi_json_coercer'

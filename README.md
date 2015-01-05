@@ -16,6 +16,24 @@ Or install it yourself as:
 
     $ gem install moderation
 
+### Configuration
+
+You can add a configuration file on your Rails project under this directory
+
+add file `config/initializers/moderation.rb`
+
+You can use the Rails generator for this
+
+`rails generate moderation:install`
+
+You can change global configuration here
+
+```
+Moderation.configure do |conf|
+  # conf.limit = 25 # default: 25
+end
+```
+
 ## Usage
 
 Moderation stores the most recent data based on a limit you set (25 objects by default). Moderation can store the data in Redis or in-memory.
@@ -223,6 +241,14 @@ Moderation stores data in-memory by default.
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## Test
+
+For execute full test suite you can run the following command:
+
+`rake`
+or
+`rake spec_all`
 
 ## TODO
 
