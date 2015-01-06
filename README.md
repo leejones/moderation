@@ -61,7 +61,6 @@ Moderation initializes with a Hash of options:
 * `:storage` - an instance of a storage object (default: in-memory)
 * `:constructor` - optional, class used to initialize new objects when fetching data from storage
 * `:construct_with` - optional, symbol for the method to call on the `:constructor`
-* `:coercer` - an instance of a coercer object (default: MultiJson)
 
 Example:
 
@@ -113,12 +112,6 @@ Examples (after a couple more people visited the website):
 **clean!**
 
   After your moderation you can cleanup your pending moderation
-
-
-### Interface Moderation::AbstractCoercer
-
-**dump(options)**
-**load(options)**
 
 #### Storing Hash or Array objects
 

@@ -1,13 +1,13 @@
 require_relative 'moderation/version'
 require_relative 'moderation/configuration'
-
 require_relative 'moderation/storage'
-# require_relative 'moderation/coercer'
+
+require 'multi_json'
 
 module Moderation
   class Store
     extend Forwardable
-    attr_reader :constructor, :construct_with, :limit, :storage, :coercer
+    attr_reader :constructor, :construct_with, :limit, :storage
 
     class << self
       attr_writer :configuration
@@ -29,16 +29,12 @@ module Moderation
       @constructor    = options.fetch(:constructor, :no_constructor)
       @construct_with = options.fetch(:construct_with, :no_construct_with)
       @limit          = options.fetch(:limit, Store.configuration.limit)
-      @coercer        = options.fetch(:coercer) do
-        require_relative 'moderation/coercer/multi_json_coercer'
-        Coercer::MultiJsonCoercer.new
-      end
-      @storage        = options.fetch(:storage) { Adapters::MemoryAdapter.new(coercer: @coercer) }
+      @storage        = options.fetch(:storage) { Adapters::MemoryAdapter.new }
       @storage.limit  = @limit
     end
 
     def insert(item)
-      storage.insert(self.coercer.dump(item))
+      storage.insert(MultiJson.dump(item))
     end
 
     def all(options = {})
@@ -47,10 +43,10 @@ module Moderation
         if using_custom_constructor?
           constructor.send(construct_with, stored_item)
         elsif using_constructor?
-          data = deserialize(stored_item)
+          data = MultiJson.load(stored_item, symbolize_keys: true)
           constructor.new(data)
         else
-          deserialize(stored_item)
+          MultiJson.load(stored_item, symbolize_keys: true)
         end
       end
     end
@@ -65,10 +61,6 @@ module Moderation
     def_delegator :storage, :delete
 
     private
-
-    def deserialize serialized_data
-      self.coercer.load(serialized_data, symbolize_keys: true)
-    end
 
     def using_constructor?
       constructor != :no_constructor

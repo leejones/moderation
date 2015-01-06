@@ -10,15 +10,12 @@
   * replace bad key `test_data` by `moderation:test_data`
 
 * Refactoring
-  * Add interface AbstractStorage and AbstractCoercer
   * Remove true Redis on spec for RedisMock
   * Replace autoload by require_relative
   * Harmonize Storage constructor of InMemory and Redis
   * Refactoring adapters memory and redis, for keep DRY
 
 * Enhancements
-  * Add policy of coercion, you can pass your own coercer
-  * Pass coercer to search (adapters)
 
 * Backwards incompatible changes
   * Moderation class became a module, you need to call Moderation::Store.new instead of Moderation.new
