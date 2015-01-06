@@ -9,6 +9,10 @@ module Moderation
       raise NotImplementedError
     end
 
+    def search key, value
+      raise NotImplementedError
+    end
+
     def moderation_required?
       raise NotImplementedError
     end

@@ -12,20 +12,31 @@ module Moderation
 
       let(:recent_visitors) { store }
 
-      specify '#moderation_required?' do
-        expect(recent_visitors.moderation_required?).to be_falsey
-        recent_visitors.insert({ip_address: "222.333.44.01"})
-        expect(recent_visitors.moderation_required?).to be_truthy
+      context 'without records' do
+        specify '#moderation_required?' do
+          expect(recent_visitors.moderation_required?).to be_falsey
+        end
       end
 
-      context '#clean!' do
+      context 'with records' do
         before do
           recent_visitors.insert({ip_address: "222.333.44.01"})
-          expect(recent_visitors.moderation_required?).to be_truthy
-          store.clean!
+          recent_visitors.insert({ip_address: "222.333.44.02"})
         end
-        specify do
-          expect(recent_visitors.moderation_required?).to be_falsey
+
+        specify '#moderation_required?' do
+          expect(recent_visitors.moderation_required?).to be_truthy
+        end
+
+        context '#clean!' do
+          before { store.clean! }
+          specify do
+            expect(recent_visitors.moderation_required?).to be_falsey
+          end
+        end
+
+        specify '#search' do
+          expect(recent_visitors.search(:ip_address, "222.333.44.01").size).to eql(1)
         end
       end
 

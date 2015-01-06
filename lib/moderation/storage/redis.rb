@@ -25,6 +25,12 @@ module Moderation
         redis.lrange(collection, 0, fetch_limit) || []
       end
 
+      def search key, value
+        all.select do |entry|
+          JSON.load(entry)[key.to_s] == value
+        end
+      end
+
       def clean!
         redis.del(collection)
       end

@@ -55,6 +55,8 @@ module Moderation
       end
     end
 
+    def_delegator :storage, :search
+
     def moderation_required?
       storage.all(limit: 1).size > 0
     end

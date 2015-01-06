@@ -22,6 +22,12 @@ module Moderation
         data.first(fetch_limit)
       end
 
+      def search key, value
+        all.select do |entry|
+          JSON.load(entry)[key.to_s] == value
+        end
+      end
+
       def clean!
         @data = []
       end
