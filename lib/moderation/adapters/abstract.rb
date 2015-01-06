@@ -4,9 +4,14 @@ module Moderation
       extend Forwardable
 
       attr_accessor :limit
+      attr_reader :coercer
 
       def initialize(options = {})
-        @limit = options.fetch(:limit) { Store.configuration.limit }
+        @limit   = options.fetch(:limit) { Store.configuration.limit }
+        @coercer = options.fetch(:coercer) do
+          require_relative '../coercer/multi_json_coercer'
+          Coercer::MultiJsonCoercer.new
+        end
       end
 
       def insert data
@@ -27,6 +32,12 @@ module Moderation
 
       def clean!
         raise NotImplementedError
+      end
+
+      protected
+
+      def deserialize serialized_data
+        self.coercer.load(serialized_data, symbolize_keys: true)
       end
 
     end

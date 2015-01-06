@@ -18,6 +18,7 @@
 
 * Enhancements
   * Add policy of coercion, you can pass your own coercer
+  * Pass coercer to search (adapters)
 
 * Backwards incompatible changes
   * Moderation class became a module, you need to call Moderation::Store.new instead of Moderation.new

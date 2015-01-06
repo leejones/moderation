@@ -4,7 +4,7 @@ module Moderation
 
       def search key, value
         all.select do |entry|
-          JSON.load(entry)[key.to_s] == value
+          deserialize(entry)[key.to_sym] == value
         end
       end
 
