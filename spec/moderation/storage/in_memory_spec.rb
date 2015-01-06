@@ -38,7 +38,7 @@ module Moderation
 
         it 'returns a subset of data' do
           Array(0..10).each { |n| storage.insert(n) }
-          storage.all(:limit => 5).should eql([10, 9, 8, 7, 6])
+          storage.all(limit: 5).should eql([10, 9, 8, 7, 6])
         end
 
         it 'returns an empty Array' do

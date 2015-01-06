@@ -21,7 +21,6 @@ module Moderation
       def_delegator :command, :insert
       def_delegator :command, :clean!
       def_delegator :query, :all
-      def_delegator :query, :moderation_required?
 
       protected
 
