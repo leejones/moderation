@@ -17,6 +17,10 @@ module Moderation
           end
         end
 
+        def delete(item, attribute=nil)
+          @dataset.lrem(@name, 0, MultiJson.dump(item))
+        end
+
         def clean!
           @dataset.del(@name)
         end

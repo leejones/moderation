@@ -10,8 +10,9 @@ module Moderation
       include Implementation
 
       def_delegator :command, :insert
+      def_delegator :command, :delete
       def_delegator :query, :all
-    
+
       def clean!
         @collection = Memory::Collection.new
       end

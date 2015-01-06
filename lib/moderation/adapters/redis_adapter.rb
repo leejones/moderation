@@ -19,6 +19,7 @@ module Moderation
       end
 
       def_delegator :command, :insert
+      def_delegator :command, :delete
       def_delegator :command, :clean!
       def_delegator :query, :all
 

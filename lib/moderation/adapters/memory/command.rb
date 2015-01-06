@@ -17,6 +17,12 @@ module Moderation
           @dataset
         end
 
+        def delete(item, attribute=nil)
+          @dataset.delete_if do |entry|
+            MultiJson.load(entry, symbolize_keys: true) == item
+          end
+        end
+
       end
     end
   end

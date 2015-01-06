@@ -38,6 +38,15 @@ module Moderation
         specify '#search' do
           expect(recent_visitors.search(:ip_address, "222.333.44.01").size).to eql(1)
         end
+
+        context 'delete' do
+          before do
+            recent_visitors.delete({ip_address: "222.333.44.01"})
+          end
+          specify do
+            expect(recent_visitors.all.size).to eql(1)
+          end
+        end
       end
 
       context 'with 3 Visitors' do
