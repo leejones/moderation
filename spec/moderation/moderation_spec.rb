@@ -20,8 +20,10 @@ module Moderation
 
       context 'with records' do
         before do
-          recent_visitors.insert({ip_address: "222.333.44.01"})
-          recent_visitors.insert({ip_address: "222.333.44.02"})
+          recent_visitors.insert({ip_address: '222.333.44.01'})
+          recent_visitors.insert({ip_address: '222.333.44.02'})
+          recent_visitors.insert({ip_address: '222.333.44.02'})
+          recent_visitors.insert({ip_address: '222.333.44.02'})
         end
 
         specify '#moderation_required?' do
@@ -36,15 +38,21 @@ module Moderation
         end
 
         specify '#search' do
-          expect(recent_visitors.search(:ip_address, "222.333.44.01").size).to eql(1)
+          expect(recent_visitors.search(:ip_address, '222.333.44.01').size).to eql(1)
         end
 
-        context 'delete' do
-          before do
-            recent_visitors.delete({ip_address: "222.333.44.01"})
+        describe '#delete' do
+          context 'without search' do
+            specify do
+              expect(recent_visitors.delete({ip_address: '222.333.44.01'})).to eql(1)
+              expect(recent_visitors.all.size).to eql(3)
+            end
           end
-          specify do
-            expect(recent_visitors.all.size).to eql(1)
+          context 'with search' do
+            specify do
+              expect(recent_visitors.delete_query(:ip_address, '222.333.44.02')).to eql(3)
+              expect(recent_visitors.all.size).to eql(1)
+            end
           end
         end
       end

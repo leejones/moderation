@@ -59,6 +59,7 @@ module Moderation
 
     def_delegator :storage, :clean!
     def_delegator :storage, :delete
+    def_delegator :storage, :delete_query
 
     private
 

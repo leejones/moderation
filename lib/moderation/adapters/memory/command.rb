@@ -17,10 +17,21 @@ module Moderation
           @dataset
         end
 
-        def delete(item, attribute=nil)
-          @dataset.delete_if do |entry|
+        # Public: Remove item from dataset
+        #
+        # item - Item (Instance of object itself)
+        #
+        # Examples
+        #   delete({ip_address: '222.333.44.01'})
+        #   # => 0 (items removed)
+        #
+        # Returns number of item removed
+        def delete(item)
+          initial_size = @dataset.size
+          final_size   = @dataset.delete_if do |entry|
             MultiJson.load(entry, symbolize_keys: true) == item
-          end
+          end.size
+          initial_size - final_size
         end
 
       end

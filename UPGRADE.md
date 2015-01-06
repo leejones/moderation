@@ -4,6 +4,6 @@
 
 You need to rename `Moderation.new` to `Moderation:Store.new`
 
-You need to rename `Storage::InMemory.new` to `Adapters::RedisAdapter.new`
+You need to rename `Storage::InMemory.new` to `Adapters::MemoryAdapter.new`
 
 You need to rename `Storage::Redis.new` to `Adapters::RedisAdapter.new`

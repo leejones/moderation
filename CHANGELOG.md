@@ -1,7 +1,7 @@
 ### VERSION 1.0.0
 
 * Feature
-  * Add moderation_required? and clean! method to Store
+  * Add moderation_required?, clean!, delete and delete_query method to Store
   * Add general configuration
   * Add generator Rails for install configuration file
   * Add Search interface
@@ -19,8 +19,11 @@
 
 * Backwards incompatible changes
   * Moderation class became a module, you need to call Moderation::Store.new instead of Moderation.new
-  * Signature of Moderation::Storage::InMemory has changed, it take Hash now
-    * Moderation::Storage::InMemory.new(limit: 10)
+  * Storage::InMemory.new became Adapters::MemoryAdapter.new
+  * Storage::Redis.new became Adapters::RedisAdapter.new
+  * All adapters take Hash on their constructors
+    * Adapters::MemoryAdapter.new(limit: 10)
+    * Adapters::RedisAdapter.new(limit: 10)
 
 * Test
   * Add configuration for testing all storage backend.
@@ -28,6 +31,7 @@
 * Deprecations
 
 * Todos
+  * Change all Hash incoming to symbolized keys
 
 * Extra
 

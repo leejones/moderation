@@ -6,12 +6,37 @@ module Moderation
       attr_accessor :limit
 
       def initialize(options = {})
-        @limit   = options.fetch(:limit) { Store.configuration.limit }
+        @limit = options.fetch(:limit) { Store.configuration.limit }
       end
+
+      # Commands
 
       def insert data
         raise NotImplementedError
       end
+
+      def clean!
+        raise NotImplementedError
+      end
+
+      # Public: Remove item from dataset
+      #
+      # item - Item (Instance of object itself)
+      #
+      # Examples
+      #   delete({ip_address: '222.333.44.01'})
+      #   # => 0 (items removed)
+      #
+      # Returns number of item removed
+      def delete item
+        raise NotImplementedError
+      end
+
+      def delete_query key, value
+        raise NotImplementedError
+      end
+
+      # Queries
 
       def all options = {}
         raise NotImplementedError
@@ -23,16 +48,6 @@ module Moderation
 
       def moderation_required?
         raise NotImplementedError
-      end
-
-      def clean!
-        raise NotImplementedError
-      end
-
-      protected
-
-      def deserialize serialized_data
-        MultiJson.load(serialized_data, symbolize_keys: true)
       end
 
     end
