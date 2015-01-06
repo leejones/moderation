@@ -65,14 +65,19 @@ Moderation initializes with a Hash of options:
 
 Example:
 
-    website_visitors = Moderation.new(
+    redis_storage = Adapters::RedisAdapter.new(
+      collection: 'visitors',
+      server: redis
+    )
+
+    website_visitors = Moderation::Store.new(
       :limit => 50,
-      :storage => redis,
+      :storage => redis_storage,
       :constructor => Visitor,
       :construct_with => :new_from_json
     )
 
-### Interface Moderation::AbstractStorage
+### Interface Moderation::Adapters::Abstract
 
 **insert(item)**
 
@@ -160,7 +165,7 @@ For this example we’ll create a simple object to represent a user's recent sea
 
 Now we can setup moderation and store new searches using the `:constructor` option:
 
-    user_search_history = Moderation.new(
+    user_search_history = Moderation::Store.new(
       :limit => 50,
       :constructor => UserSearch
     )
@@ -202,7 +207,7 @@ If your object does not initialize from a hash of attributes you can pass in the
 
 Then we could configure moderation to use the `new_from_json` constructor method:
 
-    notes = Moderation.new(
+    notes = Moderation::Store.new(
       :limit => 3,
       :constructor => Note,
       :construct_with => :new_from_json
@@ -216,14 +221,14 @@ Moderation can use a Redis storage backend. You'll want to pass in a `:collectio
 
     require 'redis'
     redis = Redis.new
-    redis_storage = Moderation::Storage::Redis.new(
+    redis_storage = Adapters::RedisAdapter.new(
       :collection => 'recent_visitors',
       :server => redis
     )
 
 Then setup moderation with the `:storage` option:
 
-    recent_visitors = Moderation.new(
+    recent_visitors = Moderation::Store.new(
       :limit => 50,
       :constructor => Visitor,
       :construct_with => :new_from_json,

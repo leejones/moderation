@@ -8,9 +8,9 @@ module Moderation
     def initialize adapter='memory'
       case adapter
       when 'memory'
-        @storage = Storage::InMemory.new
+        @storage = Adapters::MemoryAdapter.new
       when 'redis'
-        @storage = Storage::Redis.new(collection: 'collection_test', server: MockRedis.new)
+        @storage = Adapters::RedisAdapter.new(collection: 'collection_test', server: MockRedis.new)
       else
         raise 'Unsupported storage'
       end

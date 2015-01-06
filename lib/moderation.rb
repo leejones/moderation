@@ -29,7 +29,7 @@ module Moderation
       @constructor    = options.fetch(:constructor, :no_constructor)
       @construct_with = options.fetch(:construct_with, :no_construct_with)
       @limit          = options.fetch(:limit, Store.configuration.limit)
-      @storage        = options.fetch(:storage) { Storage::InMemory.new }
+      @storage        = options.fetch(:storage) { Adapters::MemoryAdapter.new }
       @coercer        = options.fetch(:coercer) do
         require_relative 'moderation/coercer/multi_json_coercer'
         Coercer::MultiJsonCoercer.new

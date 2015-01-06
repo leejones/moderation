@@ -4,6 +4,7 @@
   * Add moderation_required? and clean! method to Store
   * Add general configuration
   * Add generator Rails for install configuration file
+  * Add Search interface
 
 * Bug fix
   * replace bad key `test_data` by `moderation:test_data`
@@ -13,6 +14,7 @@
   * Remove true Redis on spec for RedisMock
   * Replace autoload by require_relative
   * Harmonize Storage constructor of InMemory and Redis
+  * Refactoring adapters memory and redis, for keep DRY
 
 * Enhancements
   * Add policy of coercion, you can pass your own coercer

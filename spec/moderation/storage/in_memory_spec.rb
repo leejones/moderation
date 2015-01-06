@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-require_relative '../../../lib/moderation/storage/in_memory'
+require_relative '../../../lib/moderation/adapters/memory_adapter'
 
 module Moderation
   module Storage
-    describe InMemory do
+    describe 'InMemory' do
       context 'in memory storage' do
-        let(:storage) { InMemory.new(options) }
+        let(:storage) { Adapters::MemoryAdapter.new(options) }
         let(:options) {{  }}
 
         it 'initializes with a default limit of 25' do
