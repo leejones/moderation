@@ -2,8 +2,6 @@ require_relative 'moderation/version'
 require_relative 'moderation/configuration'
 require_relative 'moderation/storage'
 
-require 'multi_json'
-
 module Moderation
   class Store
     extend Forwardable

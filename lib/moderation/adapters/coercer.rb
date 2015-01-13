@@ -1,3 +1,5 @@
+require 'multi_json'
+
 module Moderation
   module Adapters
     module Coercer
