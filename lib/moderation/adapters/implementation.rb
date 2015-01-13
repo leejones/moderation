@@ -5,7 +5,12 @@ module Moderation
 
       def search key, value
         all.select do |entry|
-          unmarshalling(entry)[key.to_sym] == value
+          _entry = unmarshalling(entry)
+          if (_value = _entry && _entry.fetch(key.to_sym){false})
+            _value == value
+          else
+            false
+          end
         end
       end
 
