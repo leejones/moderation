@@ -37,7 +37,7 @@ module Moderation
 
           it 'stores data' do
             storage.insert('a little bit of data')
-            storage.all.should eql(['a little bit of data'])
+            storage.all.should eql(["\"a little bit of data\""])
           end
 
           it 'removes data outside of limit' do

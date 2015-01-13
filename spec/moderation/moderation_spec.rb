@@ -149,8 +149,7 @@ module Moderation
           { title: title, author: author }.to_json(a)
         end
 
-        def self.new_from_json(json)
-          data = JSON.parse(json, symbolize_names: true)
+        def self.new_from_json(data)
           new(data[:title], data[:author])
         end
       end

@@ -7,6 +7,8 @@ require 'multi_json'
 module Moderation
   class Store
     extend Forwardable
+    include Adapters::Coercer
+
     attr_reader :constructor, :construct_with, :limit, :storage
 
     class << self
@@ -33,20 +35,18 @@ module Moderation
       @storage.limit  = @limit
     end
 
-    def insert(item)
-      storage.insert(MultiJson.dump(item))
-    end
+    def_delegator :storage, :insert
 
     def all(options = {})
       fetch_limit = options.fetch(:limit, limit)
+
       storage.all(limit: fetch_limit).map do |stored_item|
         if using_custom_constructor?
-          constructor.send(construct_with, stored_item)
+          constructor.send(construct_with, deserialize(stored_item))
         elsif using_constructor?
-          data = MultiJson.load(stored_item, symbolize_keys: true)
-          constructor.new(data)
+          constructor.new(deserialize(stored_item))
         else
-          MultiJson.load(stored_item, symbolize_keys: true)
+          deserialize(stored_item)
         end
       end
     end

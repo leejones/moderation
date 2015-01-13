@@ -1,17 +1,18 @@
 module Moderation
   module Adapters
     module Implementation
+      include Adapters::Coercer
 
       def search key, value
         all.select do |entry|
-          MultiJson.load(entry, symbolize_keys: true)[key.to_sym] == value
+          deserialize(entry)[key.to_sym] == value
         end
       end
 
       def delete_query key, value
         removed_item = 0
         search(key, value).each do |entry|
-          removed_item += delete(MultiJson.load(entry, symbolize_keys: true))
+          removed_item += delete(deserialize(entry))
         end
         removed_item
       end

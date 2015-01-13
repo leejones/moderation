@@ -2,7 +2,8 @@ module Moderation
   module Adapters
     module Redis
       class Command
-        include Moderation::Adapters::Redis::Transaction
+        include Transaction
+        include Adapters::Coercer
 
         def initialize(collection, name, limit)
           @dataset = collection.dataset
@@ -12,13 +13,13 @@ module Moderation
 
         def insert(item)
           transaction do
-            @dataset.lpush(@name, item)
+            @dataset.lpush(@name, serialize(item))
             @dataset.ltrim(@name, 0, (@limit - 1))
           end
         end
 
         def delete(item, attribute=nil)
-          @dataset.lrem(@name, 0, MultiJson.dump(item))
+          @dataset.lrem(@name, 0, serialize(item))
         end
 
         def clean!

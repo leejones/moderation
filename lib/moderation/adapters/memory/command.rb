@@ -2,6 +2,7 @@ module Moderation
   module Adapters
     module Memory
       class Command
+        include Adapters::Coercer
 
         def initialize(collection, limit)
           @dataset = collection.dataset
@@ -9,7 +10,7 @@ module Moderation
         end
 
         def insert(item)
-          @dataset.unshift(item)
+          @dataset.unshift(serialize(item))
 
           if @dataset.count > @limit
             @dataset.pop(@dataset.count - @limit)
@@ -29,7 +30,7 @@ module Moderation
         def delete(item)
           initial_size = @dataset.size
           final_size   = @dataset.delete_if do |entry|
-            MultiJson.load(entry, symbolize_keys: true) == item
+            deserialize(entry) == item
           end.size
           initial_size - final_size
         end

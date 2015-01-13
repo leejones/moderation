@@ -28,17 +28,17 @@ module Moderation
 
         it 'inserts data' do
           storage.insert('treadstone')
-          storage.all.should eql(['treadstone'])
+          storage.all.should eql(["\"treadstone\""])
         end
 
         it 'returns all data' do
           Array(0..10).each { |n| storage.insert(n) }
-          storage.all.should eql([10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0])
+          storage.all.should eql(["10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
         end
 
         it 'returns a subset of data' do
           Array(0..10).each { |n| storage.insert(n) }
-          storage.all(limit: 5).should eql([10, 9, 8, 7, 6])
+          storage.all(limit: 5).should eql(["10", "9", "8", "7", "6"])
         end
 
         it 'returns an empty Array' do

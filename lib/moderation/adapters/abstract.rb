@@ -1,3 +1,5 @@
+require 'moderation/adapters/coercer'
+
 module Moderation
   module Adapters
     class Abstract
@@ -32,6 +34,16 @@ module Moderation
         raise NotImplementedError
       end
 
+      # Public: Remove item from dataset from query
+      #
+      # key   - String or Symobol
+      # value - Object
+      #
+      # Examples
+      #   delete_query(:ip_address, '222.333.44.01')
+      #   # => 1 (items removed)
+      #
+      # Returns number of item removed
       def delete_query key, value
         raise NotImplementedError
       end

@@ -14,6 +14,7 @@
   * Replace autoload by require_relative
   * Harmonize Storage constructor of InMemory and Redis
   * Refactoring adapters memory and redis, for keep DRY
+  * Add Coercer
 
 * Enhancements
 
