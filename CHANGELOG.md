@@ -15,6 +15,7 @@
   * Harmonize Storage constructor of InMemory and Redis
   * Refactoring adapters memory and redis, for keep DRY
   * Add Coercer
+  * Extract deserialization
 
 * Enhancements
 

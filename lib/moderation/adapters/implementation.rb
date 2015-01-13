@@ -5,14 +5,14 @@ module Moderation
 
       def search key, value
         all.select do |entry|
-          deserialize(entry)[key.to_sym] == value
+          unmarshalling(entry)[key.to_sym] == value
         end
       end
 
       def delete_query key, value
         removed_item = 0
         search(key, value).each do |entry|
-          removed_item += delete(deserialize(entry))
+          removed_item += delete(unmarshalling(entry))
         end
         removed_item
       end

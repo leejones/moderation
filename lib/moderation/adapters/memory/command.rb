@@ -10,7 +10,7 @@ module Moderation
         end
 
         def insert(item)
-          @dataset.unshift(serialize(item))
+          @dataset.unshift(marshalling(item))
 
           if @dataset.count > @limit
             @dataset.pop(@dataset.count - @limit)
@@ -30,7 +30,7 @@ module Moderation
         def delete(item)
           initial_size = @dataset.size
           final_size   = @dataset.delete_if do |entry|
-            deserialize(entry) == item
+            unmarshalling(entry) == item
           end.size
           initial_size - final_size
         end

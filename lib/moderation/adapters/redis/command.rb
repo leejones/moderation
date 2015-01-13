@@ -13,13 +13,13 @@ module Moderation
 
         def insert(item)
           transaction do
-            @dataset.lpush(@name, serialize(item))
+            @dataset.lpush(@name, marshalling(item))
             @dataset.ltrim(@name, 0, (@limit - 1))
           end
         end
 
         def delete(item, attribute=nil)
-          @dataset.lrem(@name, 0, serialize(item))
+          @dataset.lrem(@name, 0, marshalling(item))
         end
 
         def clean!

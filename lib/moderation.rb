@@ -39,15 +39,16 @@ module Moderation
 
     def all(options = {})
       fetch_limit = options.fetch(:limit, limit)
+      storage.all(limit: fetch_limit).map { |stored_item| deserialize(stored_item) }
+    end
 
-      storage.all(limit: fetch_limit).map do |stored_item|
-        if using_custom_constructor?
-          constructor.send(construct_with, deserialize(stored_item))
-        elsif using_constructor?
-          constructor.new(deserialize(stored_item))
-        else
-          deserialize(stored_item)
-        end
+    def deserialize item
+      if using_custom_constructor?
+        constructor.send(construct_with, unmarshalling(item))
+      elsif using_constructor?
+        constructor.new(unmarshalling(item))
+      else
+        unmarshalling(item)
       end
     end
 

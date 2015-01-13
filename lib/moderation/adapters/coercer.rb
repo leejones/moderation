@@ -2,11 +2,11 @@ module Moderation
   module Adapters
     module Coercer
 
-      def deserialize item
+      def unmarshalling item
         MultiJson.load(item, symbolize_keys: true)
       end
 
-      def serialize item
+      def marshalling item
         MultiJson.dump(item)
       end
 
