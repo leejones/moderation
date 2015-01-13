@@ -32,6 +32,8 @@
 
 * Todos
   * Change all Hash incoming to symbolized keys
+  * Make Query more powerfull
+  * Add support of :constructor and :new_from_json on moderation_required?
 
 * Extra
 

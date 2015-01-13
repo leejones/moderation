@@ -107,7 +107,9 @@ Examples (after a couple more people visited the website):
 
 **moderation_required?**
 
-  if you have some moderation on your observed model, you can ask simply the store about that
+  if you have some moderation on your observed model, you can ask simply the store about that, optionally you can pass query like that:
+
+  moderation_required? :ip_address, '223.123.243.11'
 
 **clean!**
 

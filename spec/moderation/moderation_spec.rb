@@ -28,6 +28,8 @@ module Moderation
 
         specify '#moderation_required?' do
           expect(recent_visitors.moderation_required?).to be_truthy
+          expect(recent_visitors.moderation_required?(:ip_address, '222.333.44.01')).to be_truthy
+          expect(recent_visitors.moderation_required?(:ip_address, '222.333.44.00')).to be_falsey
         end
 
         context '#clean!' do

@@ -53,8 +53,28 @@ module Moderation
 
     def_delegator :storage, :search
 
-    def moderation_required?
-      storage.all(limit: 1).size > 0
+    # Public: Ask if there are some recorded moderation
+    # You can ask for general or you can pass search critera
+    #
+    # key   - String or Symobol
+    # value - Object
+    #
+    # Examples
+    #
+    #   moderation_required?
+    #   # => true | false
+    #
+    #   moderation_required? :id, 1
+    #   # => true | false
+    #
+    # Returns boolean if there are or not moderations recorded
+    def moderation_required? *args
+      key, value = args
+      if key && value
+        storage.search(key, value)
+      else
+        storage.all(limit: 1)
+      end.size > 0
     end
 
     def_delegator :storage, :clean!
