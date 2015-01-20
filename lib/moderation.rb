@@ -37,7 +37,7 @@ module Moderation
 
     def all(options = {})
       fetch_limit = options.fetch(:limit, limit)
-      storage.all(limit: fetch_limit).map { |stored_item| deserialize(stored_item) }
+      storage.all(limit: fetch_limit).map { |item| deserialize(item) }
     end
 
     def deserialize item
@@ -50,7 +50,10 @@ module Moderation
       end
     end
 
-    def_delegator :storage, :search
+    # def_delegator :storage, :search
+    def search key, value
+      storage.search(key, value).map { |item| deserialize(item) }
+    end
 
     # Public: Ask if there are some recorded moderation
     # You can ask for general or you can pass search critera
