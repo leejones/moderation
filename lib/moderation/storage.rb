@@ -1,6 +1,2 @@
-class Moderation
-  class Storage
-    autoload 'InMemory', 'moderation/storage/in_memory.rb'
-    autoload 'Redis', 'moderation/storage/redis.rb'
-  end
-end
+require_relative 'adapters/memory_adapter'
+require_relative 'adapters/redis_adapter'

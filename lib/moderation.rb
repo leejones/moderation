@@ -1,45 +1,96 @@
-require 'moderation/version'
-require 'multi_json'
+require_relative 'moderation/version'
+require_relative 'moderation/configuration'
+require_relative 'moderation/storage'
 
-class Moderation
-  attr_reader :constructor, :construct_with, :limit, :storage
-  autoload 'Storage', 'moderation/storage.rb'
-  DEFAULT_LIMIT = 25
+module Moderation
+  class Store
+    extend Forwardable
+    include Adapters::Coercer
 
-  def initialize(options = {})
-    @constructor = options[:constructor]
-    @construct_with = options[:construct_with]
-    @limit = options.fetch(:limit, DEFAULT_LIMIT)
-    @storage = options.fetch(:storage, Storage::InMemory.new)
-    @storage.limit = @limit
-  end
+    attr_reader :constructor, :construct_with, :limit, :storage
 
-  def insert(item)
-    storage.insert(MultiJson.dump(item))
-  end
+    class << self
+      attr_writer :configuration
+    end
 
-  def all(options = {})
-    fetch_limit = options.fetch(:limit, limit)
-    storage.all(limit: fetch_limit).map do |stored_item|
+    def self.configuration
+      @configuration ||= Configuration.new
+    end
+
+    def self.reset
+      @configuration = Configuration.new
+    end
+
+    def self.configure
+      yield(configuration)
+    end
+
+    def initialize(options = {})
+      @constructor    = options.fetch(:constructor, :no_constructor)
+      @construct_with = options.fetch(:construct_with, :no_construct_with)
+      @limit          = options.fetch(:limit, Store.configuration.limit)
+      @storage        = options.fetch(:storage) { Adapters::MemoryAdapter.new }
+      @storage.limit  = @limit
+    end
+
+    def_delegator :storage, :insert
+
+    def all(options = {})
+      fetch_limit = options.fetch(:limit, limit)
+      storage.all(limit: fetch_limit).map { |item| deserialize(item) }
+    end
+
+    def deserialize item
       if using_custom_constructor?
-        constructor.send(construct_with, stored_item)
+        constructor.send(construct_with, unmarshalling(item))
       elsif using_constructor?
-        data = MultiJson.load(stored_item, :symbolize_keys => true)
-        constructor.new(data)
+        constructor.new(unmarshalling(item))
       else
-        MultiJson.load(stored_item, :symbolize_keys => true)
+        unmarshalling(item)
       end
     end
-  end
 
-  private
+    # def_delegator :storage, :search
+    def search key, value
+      storage.search(key, value).map { |item| deserialize(item) }
+    end
 
-  def using_constructor?
-    ! constructor.nil?
-  end
+    # Public: Ask if there are some recorded moderation
+    # You can ask for general or you can pass search critera
+    #
+    # key   - String or Symobol
+    # value - Object
+    #
+    # Examples
+    #
+    #   moderation_required?
+    #   # => true | false
+    #
+    #   moderation_required? :id, 1
+    #   # => true | false
+    #
+    # Returns boolean if there are or not moderations recorded
+    def moderation_required? *args
+      key, value = args
+      if key && value
+        storage.search(key, value)
+      else
+        storage.all(limit: 1)
+      end.size > 0
+    end
 
-  def using_custom_constructor?
-    using_constructor? && ! construct_with.nil? 
+    def_delegator :storage, :clean!
+    def_delegator :storage, :delete
+    def_delegator :storage, :delete_query
+
+    private
+
+    def using_constructor?
+      constructor != :no_constructor
+    end
+
+    def using_custom_constructor?
+      using_constructor? && construct_with != :no_construct_with
+    end
   end
 end
-

@@ -16,6 +16,24 @@ Or install it yourself as:
 
     $ gem install moderation
 
+### Configuration
+
+You can add a configuration file on your Rails project under this directory
+
+add file `config/initializers/moderation.rb`
+
+You can use the Rails generator for this
+
+`rails generate moderation:install`
+
+You can change global configuration here
+
+```
+Moderation.configure do |conf|
+  # conf.limit = 25 # default: 25
+end
+```
+
 ## Usage
 
 Moderation stores the most recent data based on a limit you set (25 objects by default). Moderation can store the data in Redis or in-memory.
@@ -35,7 +53,7 @@ Moderation stores the most recent data based on a limit you set (25 objects by d
 
 Moderation initializes with a Hash of options:
 
-    Moderation.new(options = {})
+    Moderation::Store.new(options = {})
 
 **options**
 
@@ -46,14 +64,19 @@ Moderation initializes with a Hash of options:
 
 Example:
 
-    website_visitors = Moderation.new(
+    redis_storage = Adapters::RedisAdapter.new(
+      collection: 'visitors',
+      server: redis
+    )
+
+    website_visitors = Moderation::Store.new(
       :limit => 50,
-      :storage => redis,
+      :storage => redis_storage,
       :constructor => Visitor,
       :construct_with => :new_from_json
     )
 
-### Interface
+### Interface Moderation::Adapters::Abstract
 
 **insert(item)**
 
@@ -82,11 +105,21 @@ Examples (after a couple more people visited the website):
     website_visitors.all(:limit => 1)
     => [#<Visitor ip_address="223.123.243.11", visited_url="http://example.com">]
 
+**moderation_required?**
+
+  if you have some moderation on your observed model, you can ask simply the store about that, optionally you can pass query like that:
+
+  moderation_required? :ip_address, '223.123.243.11'
+
+**clean!**
+
+  After your moderation you can cleanup your pending moderation
+
 #### Storing Hash or Array objects
 
 Example:
 
-    temperatures = Moderation.new
+    temperatures = Moderation::Store.new
 
     # add some data
     (1..28).to_a.each do |n|
@@ -127,7 +160,7 @@ For this example we’ll create a simple object to represent a user's recent sea
 
 Now we can setup moderation and store new searches using the `:constructor` option:
 
-    user_search_history = Moderation.new(
+    user_search_history = Moderation::Store.new(
       :limit => 50,
       :constructor => UserSearch
     )
@@ -169,7 +202,7 @@ If your object does not initialize from a hash of attributes you can pass in the
 
 Then we could configure moderation to use the `new_from_json` constructor method:
 
-    notes = Moderation.new(
+    notes = Moderation::Store.new(
       :limit => 3,
       :constructor => Note,
       :construct_with => :new_from_json
@@ -183,14 +216,14 @@ Moderation can use a Redis storage backend. You'll want to pass in a `:collectio
 
     require 'redis'
     redis = Redis.new
-    redis_storage = Moderation::Storage::Redis.new(
+    redis_storage = Adapters::RedisAdapter.new(
       :collection => 'recent_visitors',
       :server => redis
     )
 
 Then setup moderation with the `:storage` option:
 
-    recent_visitors = Moderation.new(
+    recent_visitors = Moderation::Store.new(
       :limit => 50,
       :constructor => Visitor,
       :construct_with => :new_from_json,
@@ -208,6 +241,14 @@ Moderation stores data in-memory by default.
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## Test
+
+For execute full test suite you can run the following command:
+
+`rake`
+or
+`rake spec_all`
 
 ## TODO
 
